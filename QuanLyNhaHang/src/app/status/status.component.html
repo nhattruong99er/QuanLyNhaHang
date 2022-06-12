@@ -1,0 +1,208 @@
+<p-toast></p-toast>
+
+<p style="font-size: 200%" *ngIf="loading">Đang tải dữ liệu ...</p>
+<div class="card" *ngIf = "!loading">
+
+  <p-toolbar styleClass = "p-mb-4">
+
+    <ng-template pTemplate="left">
+
+      <p-dropdown
+      [options]="restaurants"
+      [(ngModel)]="selectedRestaurant"
+      optionLabel="name"
+      [filter]="true"
+      filterBy="name"
+      [showClear]="true"
+      placeholder="Select a Restaurant"
+      [style] = "{ width : '400px' }"
+      (onChange)="onRestaurantChange($event.value)">
+
+        <ng-template pTemplate="selectedItem">
+            <div class="restaurant-item restaurant-item-value"
+            *ngIf="selectedRestaurant">
+                <!-- <img src="assets/showcase/images/demo/flag/flag_placeholder.png" [class]="'flag flag-' + selectedCountry.code.toLowerCase()" /> -->
+                <div>{{selectedRestaurant.name}}</div>
+            </div>
+        </ng-template>
+        <ng-template let-restaurant pTemplate="item">
+            <div class="restaurant-item">
+                <!-- <img src="assets/showcase/images/demo/flag/flag_placeholder.png" [class]="'flag flag-' + country.code.toLowerCase()" /> -->
+                <div>{{restaurant?.name}}</div>
+            </div>
+        </ng-template>
+    </p-dropdown>
+
+      <button
+      pButton
+      pRipple
+      label = "Thêm tình trạng"
+      icon = "pi pi-plus"
+      class = "p-button-success p-mr-2"
+      (click)="openNew()"
+      [disabled] = "!selectedRestaurant">
+      </button>
+    </ng-template>
+
+    <ng-template>
+      <ng-template pTemplate="right">
+        <!-- <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel = "Import" class="p-mr-2p-d-inline-block"></p-fileUpload>
+        <button pButton pRipple label = "Export" icon="pi pi-upload" class = "p-button-help"></button> -->
+        <span class="p-input-icon-left">
+          <i class = "pi pi-search"></i>
+          <input
+            pInputText
+            type = "text"
+            (input) = "dt.filterGlobal($any($event.target).value,'contains')"
+            placeholder="Tìm ..."/>
+        </span>
+      </ng-template>
+    </ng-template>
+
+  </p-toolbar>
+
+  <p-table
+    #dt
+    id="dataTable"
+    [value]="displayStatuses"
+    [rows]="10"
+    [paginator]="true"
+    [globalFilterFields]="['name', 'description']"
+    [rowHover]="true"
+    dataKey="id">
+
+    <!-- <ng-template pTemplate="caption">
+      <div class="p-d-flex p-ai-center p-jc-between">
+        <h5 class="p-m-0">Quản lý quyền</h5>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input
+            pInputText
+            type="text"
+            (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+            placeholder="Search..."/>
+        </span>
+      </div>
+    </ng-template> -->
+
+    <ng-template pTemplate="hearder">
+      <tr>
+        <th pSorttableColumn="name">
+          Tên <p-sortIcon field="name"></p-sortIcon>
+        </th>
+        <!-- <th pSorttableColumn="address">
+          Địa chỉ <p-sortIcon field="address"></p-sortIcon>
+        </th>
+        <th pSorttableColumn="phone">
+          Điện thoại <p-sortIcon field="phone"></p-sortIcon>
+        </th> -->
+        <th pSorttableColumn="description">
+          Chú thích <p-sortIcon field="description"></p-sortIcon>
+        </th>
+        <th pSorttableColumn="created">
+          Ngày tạo <p-sortIcon field="created"></p-sortIcon>
+        </th>
+        <th pSorttableColumn="updated">
+          Ngày chỉnh <p-sortIcon field="updated"></p-sortIcon>
+        </th>
+        <th></th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-status>
+      <tr>
+        <td>{{ status.name }}</td>
+        <!-- <td>{{ status.address }}</td>
+        <td>{{ status.phone }}</td> -->
+        <td>{{ status.description }}</td>
+        <td>
+          {{ status.created | date: "dd/MM/yyyy" }}
+          <br>
+          {{status.createdUser?.userName}}
+        </td>
+        <td>
+          {{ status.updated | date: "dd/MM/yyyy" }}
+          <br>
+          {{status.updatedUser?.userName}}
+        </td>
+        <td>{{ status.deleted }}</td>
+        <td>
+          <button
+            pButton
+            pRipple
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-success p-mr-2"
+            (click)="editStatus(status)">
+          </button>
+          <button
+          pButton
+          pRipple
+          icon="pi pi-trash"
+          class="p-button-rounded p-button-warning"
+          (click)="deleteStatus(status)">
+        </button>
+        </td>
+      </tr>
+
+    </ng-template>
+
+  </p-table>
+</div>
+
+<p-dialog
+  [(visible)] = "statusDialog"
+  [style] = "{width: '450xp'} "
+  header = "Status Details"
+  [modal] = "true"
+  styleClass = "p-fluid">
+  <ng-template pTemplate="content">
+    <div class="p-field">
+      <label for="name">Tên</label>
+      <input
+        type = "text"
+        pInputText
+        id = "name"
+        [(ngMode)] = "status.name"
+        required
+        autofocus/>
+      <small class="p-invalid" *ngIf="submitted && !status.name">
+        Tên là bắt buộc
+      </small>
+    </div>
+
+    <div class = "p-field">
+      <label for = "description">Chú thích</label>
+      <textarea
+        id="description"
+        pInputTextarea
+        [(ngMode)]="status.description"
+        required
+        rows="3"
+        cols="20">
+      </textarea>
+    </div>
+
+  </ng-template>
+
+
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      pRipple
+      label="Hủy"
+      icon="pi pi-times"
+      class="p-button-text"
+      (click)="hideDialog()">
+    </button>
+    <button
+      pButton
+      pRipple
+      label="Lưu"
+      icon="pi pi-check"
+      class="p-button-text"
+      (click)="saveStatus()">
+  </button>
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog [style] ="{ width: '450px' }" ></p-confirmDialog>
